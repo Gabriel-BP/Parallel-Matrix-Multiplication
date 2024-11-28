@@ -8,8 +8,8 @@ public class MatrixMultiplicationTest {
     @Test
     public void testPerformanceMetrics() {
         System.out.println("Available Cores: " + Runtime.getRuntime().availableProcessors());
-        double[][] matrixA = MatrixUtils.generateRandomMatrix(1000, 1000);
-        double[][] matrixB = MatrixUtils.generateRandomMatrix(1000, 1000);
+        double[][] matrixA = MatrixUtils.generateRandomMatrix(1024, 1024);
+        double[][] matrixB = MatrixUtils.generateRandomMatrix(1024, 1024);
 
         // Measure Basic Algorithm Time and Memory
         long basicTime = BenchmarkUtility.measureExecutionTimeWithResources(() ->
@@ -22,21 +22,31 @@ public class MatrixMultiplicationTest {
                 ParallelMatrixMultiplication.multiply(matrixA, matrixB, numThreads)
         );
 
+        // Measure Vectorized Algorithm Time and Memory
+        long vectorizedTime = BenchmarkUtility.measureExecutionTimeWithResources(() ->
+                VectorizedMatrixMultiplication.multiply(matrixA, matrixB)
+        );
+
         // Calculate Speedup and Efficiency
-        double speedup = (double) basicTime / parallelTime;
-        double efficiency = speedup / numThreads;
+        double parallelSpeedup = (double) basicTime / parallelTime;
+        double parallelEfficiency = parallelSpeedup / numThreads;
+
+        double vectorizedSpeedup = (double) basicTime / vectorizedTime;
 
         // Cap efficiency to 1 if it exceeds logical bounds
-        efficiency = Math.min(efficiency, 1.0);
+        parallelEfficiency = Math.min(parallelEfficiency, 1.0);
 
         // Print results
         System.out.println("Basic Algorithm Time: " + basicTime / 1e6 + " ms");
         System.out.println("Parallel Algorithm Time: " + parallelTime / 1e6 + " ms");
-        System.out.println("Speedup: " + speedup);
-        System.out.println("Efficiency: " + efficiency);
+        System.out.println("Vectorized Algorithm Time: " + vectorizedTime / 1e6 + " ms");
+        System.out.println("Parallel Speedup: " + parallelSpeedup);
+        System.out.println("Parallel Efficiency: " + parallelEfficiency);
+        System.out.println("Vectorized Speedup: " + vectorizedSpeedup);
 
         // Assertions to ensure performance improvement
-        assertTrue(speedup > 1, "Speedup should be greater than 1");
-        assertTrue(efficiency > 0.5, "Efficiency should be reasonable (e.g., >50%)");
+        assertTrue(parallelSpeedup > 1, "Parallel speedup should be greater than 1");
+        assertTrue(parallelEfficiency > 0.5, "Parallel efficiency should be reasonable (e.g., >50%)");
+        assertTrue(vectorizedSpeedup > 1, "Vectorized speedup should be greater than 1");
     }
 }
