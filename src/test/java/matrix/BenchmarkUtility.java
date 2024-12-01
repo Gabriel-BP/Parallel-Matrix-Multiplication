@@ -1,24 +1,24 @@
 package matrix;
 
+import java.lang.management.ManagementFactory;
+import java.lang.management.MemoryMXBean;
+
 public class BenchmarkUtility {
+
     public static long measureExecutionTimeWithResources(Runnable task) {
-        Runtime runtime = Runtime.getRuntime();
+        MemoryMXBean memoryBean = ManagementFactory.getMemoryMXBean();
+        long beforeUsedMem = memoryBean.getHeapMemoryUsage().getUsed();
+        long startTime = System.nanoTime();
 
-        // Force garbage collection to get a stable baseline
-        runtime.gc();
-        long beforeMemory = runtime.totalMemory() - runtime.freeMemory();
-
-        long start = System.nanoTime();
         task.run();
-        long duration = System.nanoTime() - start;
 
-        runtime.gc();
-        long afterMemory = runtime.totalMemory() - runtime.freeMemory();
+        long endTime = System.nanoTime();
+        long afterUsedMem = memoryBean.getHeapMemoryUsage().getUsed();
 
-        // Use absolute value to avoid negative results
-        long memoryUsed = Math.abs(afterMemory - beforeMemory);
-        System.out.println("Memory Used: " + memoryUsed / (1024 * 1024) + " MB");
+        long memoryUsed = (afterUsedMem - beforeUsedMem) / (1024 * 1024); // In MB
+        System.out.println("Memory used: " + memoryUsed + " MB");
 
-        return duration;
+        return endTime - startTime;
     }
 }
+
