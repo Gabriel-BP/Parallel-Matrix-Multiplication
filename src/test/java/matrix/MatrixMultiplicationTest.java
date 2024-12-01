@@ -32,9 +32,11 @@ public class MatrixMultiplicationTest {
         double parallelEfficiency = parallelSpeedup / numThreads;
 
         double vectorizedSpeedup = (double) basicTime / vectorizedTime;
+        double vectorizedEfficiency = vectorizedSpeedup / numThreads;
 
         // Cap efficiency to 1 if it exceeds logical bounds
         parallelEfficiency = Math.min(parallelEfficiency, 1.0);
+        vectorizedEfficiency = Math.min(vectorizedEfficiency, 1.0);
 
         // Print results
         System.out.println("Basic Algorithm Time: " + basicTime / 1e6 + " ms");
@@ -43,6 +45,7 @@ public class MatrixMultiplicationTest {
         System.out.println("Parallel Speedup: " + parallelSpeedup);
         System.out.println("Parallel Efficiency: " + parallelEfficiency);
         System.out.println("Vectorized Speedup: " + vectorizedSpeedup);
+        System.out.println("Vectorized Efficiency: " + vectorizedEfficiency);
 
         // Assertions to ensure performance improvement
         assertTrue(parallelSpeedup > 1, "Parallel speedup should be greater than 1");
